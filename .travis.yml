@@ -55,10 +55,6 @@ script: ./gradlew connectedAndroidTest --info
 #-----------------------
 
 addons:
-  coverity_scan:
-    project:
-      name: "SecUpwN/Android-IMSI-Catcher-Detector"
-    notification_email: annoyed@coverity.notifications
 # Scan results: http://scan.coverity.com/projects/3346
     build_command_prepend: "./gradlew clean"
     build_command: "./gradlew build"
