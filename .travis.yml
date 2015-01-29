@@ -31,5 +31,10 @@ before_script:
   - chmod +x android-wait-for-emulator
 
 script:
-  - ./android-wait-for-emulator
-  - ./gradlew connectedCheck
+  - ./gradlew assemble
+
+addons:
+# Scan results: http://scan.coverity.com/projects/3346
+    build_command_prepend: "./gradlew clean"
+    build_command: "./gradlew build"
+    branch_pattern: master
