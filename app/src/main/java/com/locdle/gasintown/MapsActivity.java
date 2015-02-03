@@ -86,7 +86,7 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private String urlGeoLocationNearbyGasStations(double lat, double lng){
-        String  url = "http://api.mygasfeed.com/";
+        String  url = "http://devapi.mygasfeed.com/";
         String requestUrl = "stations/radius/";
         String latitude = String.valueOf(lat) +"/";
         String longitude = String.valueOf(lng)+"/";
@@ -110,7 +110,6 @@ public class MapsActivity extends FragmentActivity {
 
         // Get Current Location
         Location myLocation = locationManager.getLastKnownLocation(provider);
-
 
         return new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
     }
