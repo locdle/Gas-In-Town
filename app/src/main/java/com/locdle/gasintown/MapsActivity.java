@@ -43,6 +43,8 @@ public class MapsActivity extends FragmentActivity {
             String downloadURLGeoLocationNearbyGasStations = urlGeoLocationNearbyGasStations(myCurrentLocation.latitude, myCurrentLocation.longitude);
 
             System.out.println(downloadURLGeoLocationNearbyGasStations);
+            
+            DownloadTask downloadTask = new DownloadTask(mMap);
         }
     }
 
