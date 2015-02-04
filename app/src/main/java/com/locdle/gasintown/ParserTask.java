@@ -3,8 +3,10 @@ package com.locdle.gasintown;
 import android.os.AsyncTask;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +28,11 @@ public class ParserTask extends AsyncTask<String, Integer, List<Station>> {
 
         List<Station> routes =  new ArrayList<>();
         try {
-            JSONArray jObject = new JSONArray(jsonData[0]);
-//            JSONParser parser = new JSONParser();
-//
-//            // Starts parsing data
-//            routes = parser.parse(jObject);
+            JSONObject jObject = new JSONObject(jsonData[0]);
+            JSONParser parser = new JSONParser();
+
+            // Starts parsing data
+            routes = parser.parse(jObject);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -39,8 +41,12 @@ public class ParserTask extends AsyncTask<String, Integer, List<Station>> {
 
     // Executes in UI thread, after the parsing process
     @Override
-    protected void onPostExecute(List<Station> result) {
-
+    protected void onPostExecute(List<Station> stationList) {
+        for (int i = 0; i < stationList.size(); i++) {
+            mMap.addMarker(new MarkerOptions()
+                    .position(stationList.get(i).getLatLng())
+                    .title(stationList.get(i).getRegularPrice()));
+        }
 
     }
 }
