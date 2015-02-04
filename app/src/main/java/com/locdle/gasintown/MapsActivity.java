@@ -39,12 +39,18 @@ public class MapsActivity extends FragmentActivity {
 
             //Get my current location latlng
             LatLng myCurrentLocation = getCurrentLatLng();
+            
+            if(myCurrentLocation != null){
+                myCurrentLocation = new LatLng(45.509534, -122.681081);
+            }
 
             String downloadURLGeoLocationNearbyGasStations = urlGeoLocationNearbyGasStations(myCurrentLocation.latitude, myCurrentLocation.longitude);
 
             System.out.println(downloadURLGeoLocationNearbyGasStations);
-            
+
             DownloadTask downloadTask = new DownloadTask(mMap);
+
+            downloadTask.execute(downloadURLGeoLocationNearbyGasStations);
         }
     }
 
@@ -82,7 +88,7 @@ public class MapsActivity extends FragmentActivity {
             mMap.getUiSettings().setZoomControlsEnabled(true);
             mMap.getUiSettings().setMapToolbarEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(getCurrentLatLng(), 10.0f));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(45.509534, -122.681081), 10.0f));
 
         }
     }
@@ -92,7 +98,7 @@ public class MapsActivity extends FragmentActivity {
         String requestUrl = "stations/radius/";
         String latitude = String.valueOf(lat) +"/";
         String longitude = String.valueOf(lng)+"/";
-        String distance = "2/";
+        String distance = "20/";
         String fuel = "reg/";
         String sortby = "price/";
         String apikey = "rfej9napna" + ".json";
@@ -112,7 +118,7 @@ public class MapsActivity extends FragmentActivity {
 
         // Get Current Location
         Location myLocation = locationManager.getLastKnownLocation(provider);
-
+        
         return new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
     }
 }
