@@ -3,5 +3,6 @@
 
     <string name="app_name">Gas In Town</string>
     <string name="title_activity_maps">Gas In Town</string>
-
+    <string name="str_btn_find">Find</string>
+    <string name="hnt_et_location">Enter location</string>
 </resources>
