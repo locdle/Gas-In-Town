@@ -2,11 +2,18 @@ package com.locdle.gasintown;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -16,9 +23,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
+import java.util.List;
+
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+//    private LatLng resultLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,10 +45,8 @@ public class MapsActivity extends FragmentActivity {
             dialog.show();
         }
         else{
-            // Enable MyLocation Button in the Map
-            mMap.setMyLocationEnabled(true);
 
-            //Get my current location latlng
+           /* //Get my current location latlng
             LatLng myCurrentLocation = getCurrentLatLng();
             
             if(myCurrentLocation != null){
@@ -50,7 +59,29 @@ public class MapsActivity extends FragmentActivity {
 
             DownloadTask downloadTask = new DownloadTask(mMap);
 
-            downloadTask.execute(downloadURLGeoLocationNearbyGasStations);
+            downloadTask.execute(downloadURLGeoLocationNearbyGasStations);*/
+
+            // Getting reference to btn_find of the layout activity_main
+            Button btn_find = (Button) findViewById(R.id.btn_find);
+
+            // Defining button click event listener for the find button
+            View.OnClickListener findClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Getting reference to EditText to get the user input location
+                    EditText etLocation = (EditText) findViewById(R.id.et_location);
+
+                    // Getting user input location
+                    String location = etLocation.getText().toString();
+
+                    if(location!=null && !location.equals("")){
+                        new GeocoderTask().execute(location);
+                    }
+                }
+            };
+
+            // Setting button click event listener for the find button
+            btn_find.setOnClickListener(findClickListener);
         }
     }
 
@@ -82,12 +113,10 @@ public class MapsActivity extends FragmentActivity {
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
 
-            // Enable MyLocation Layer of Google Map
-            mMap.setMyLocationEnabled(true);
-
-            mMap.getUiSettings().setZoomControlsEnabled(true);
+            //Enable toolbar so users can use google map navigation
             mMap.getUiSettings().setMapToolbarEnabled(true);
-            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+            //load default map onto Portland Oregon
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(45.509534, -122.681081), 10.0f));
 
         }
@@ -98,7 +127,7 @@ public class MapsActivity extends FragmentActivity {
         String requestUrl = "stations/radius/";
         String latitude = String.valueOf(lat) +"/";
         String longitude = String.valueOf(lng)+"/";
-        String distance = "20/";
+        String distance = "2/";
         String fuel = "reg/";
         String sortby = "price/";
         String apikey = "rfej9napna" + ".json";
@@ -120,5 +149,55 @@ public class MapsActivity extends FragmentActivity {
         Location myLocation = locationManager.getLastKnownLocation(provider);
         
         return new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+    }
+
+    private class GeocoderTask extends AsyncTask<String, Void, List<Address>> {
+
+        @Override
+        protected List<Address> doInBackground(String... locationName) {
+            // Creating an instance of Geocoder class
+            Geocoder geocoder = new Geocoder(getBaseContext());
+            List<Address> addresses = null;
+
+            try {
+                // Getting a maximum of 3 Address that matches the input text
+                addresses = geocoder.getFromLocationName(locationName[0], 3);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return addresses;
+        }
+
+        @Override
+        protected void onPostExecute(List<Address> addresses) {
+
+            if(addresses==null || addresses.size()==0){
+                Toast.makeText(getBaseContext(), "No Location found", Toast.LENGTH_SHORT).show();
+            }
+
+            // Clears all the existing markers on the map
+            mMap.clear();
+
+            // Adding Markers on Google Map for each matching address
+            for(int i=0;i<addresses.size();i++){
+
+                Address address =  addresses.get(i);
+
+                // Creating an instance of GeoPoint, to display in Google Map
+                LatLng resultLocation = new LatLng(address.getLatitude(), address.getLongitude());
+
+                String downloadURLGeoLocationNearbyGasStations = urlGeoLocationNearbyGasStations(resultLocation.latitude, resultLocation.longitude);
+
+                System.out.println(downloadURLGeoLocationNearbyGasStations);
+
+                DownloadTask downloadTask = new DownloadTask(mMap);
+
+                downloadTask.execute(downloadURLGeoLocationNearbyGasStations);
+
+                // Locate the first location
+                if(i==0)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(resultLocation));
+            }
+        }
     }
 }
